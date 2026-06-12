@@ -17,24 +17,38 @@ export function loadTransactions() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
+      saveTransactions(seedTransactions);
       return seedTransactions;
     }
 
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.every(isTransaction)
-      ? parsed
-      : seedTransactions;
+    if (Array.isArray(parsed) && parsed.length > 0 && parsed.every(isTransaction)) {
+      return parsed;
+    }
+
+    saveTransactions(seedTransactions);
+    return seedTransactions;
   } catch {
+    saveTransactions(seedTransactions);
     return seedTransactions;
   }
 }
 
 export function saveTransactions(transactions) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+  } catch {
+    // The dashboard can still work in memory if browser storage is unavailable.
+  }
 }
 
 export function resetTransactions() {
-  localStorage.removeItem(STORAGE_KEY);
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Ignore unavailable storage; the caller will still receive demo data.
+  }
+
   return seedTransactions;
 }
 

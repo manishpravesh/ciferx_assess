@@ -36,6 +36,8 @@ function escapeHtml(value) {
 }
 
 export function renderCategoryOptions(typeSelect, categorySelect, filterSelect) {
+  if (!typeSelect || !categorySelect || !filterSelect) return;
+
   const activeFilter = filterSelect.value;
   const categoryPool =
     typeSelect.value === "income"
@@ -49,13 +51,17 @@ export function renderCategoryOptions(typeSelect, categorySelect, filterSelect) 
 }
 
 export function renderSummary(summary, elements) {
-  elements.income.textContent = formatCurrency(summary.income);
-  elements.expense.textContent = formatCurrency(summary.expense);
-  elements.balance.textContent = formatCurrency(summary.balance);
-  elements.topCategory.textContent = summary.topCategory;
+  if (!elements) return;
+
+  if (elements.income) elements.income.textContent = formatCurrency(summary.income);
+  if (elements.expense) elements.expense.textContent = formatCurrency(summary.expense);
+  if (elements.balance) elements.balance.textContent = formatCurrency(summary.balance);
+  if (elements.topCategory) elements.topCategory.textContent = summary.topCategory;
 }
 
 export function renderChart(transactions, chartElement, totalElement) {
+  if (!chartElement || !totalElement) return;
+
   const data = getSpendingChartData(transactions);
   const total = data.reduce((sum, item) => sum + item.amount, 0);
   totalElement.textContent = formatCurrency(total);
@@ -97,12 +103,16 @@ export function renderChart(transactions, chartElement, totalElement) {
 }
 
 export function renderInsight(summary, transactions, titleElement, copyElement) {
+  if (!titleElement || !copyElement) return;
+
   const insight = buildInsight(summary, transactions);
   titleElement.textContent = insight.title;
   copyElement.textContent = insight.copy;
 }
 
 export function renderLedger(transactions, filters, bodyElement, emptyElement) {
+  if (!bodyElement || !emptyElement) return;
+
   const rows = filterTransactions(transactions, filters);
   emptyElement.hidden = rows.length > 0;
 
@@ -121,7 +131,7 @@ export function renderLedger(transactions, filters, bodyElement, emptyElement) {
           </td>
           <td class="action-column">
             <button class="icon-button" data-action="delete" data-id="${transaction.id}" type="button" aria-label="Delete transaction">
-              ×
+              &times;
             </button>
           </td>
         </tr>

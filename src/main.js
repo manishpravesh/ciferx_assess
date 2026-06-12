@@ -49,7 +49,9 @@ function persistAndRender() {
 }
 
 function setError(message = "") {
-  elements.formError.textContent = message;
+  if (elements.formError) {
+    elements.formError.textContent = message;
+  }
 }
 
 function setup() {
