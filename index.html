@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A production-minded personal finance dashboard for tracking income, spending, balance, category mix, and rule-based insights."
+    />
+    <title>Ledgerline | Mini Fintech Dashboard</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%231a1a16'/%3E%3Cpath d='M14 33V15h5v18h-5Zm8 0V21h5v12h-5Zm8 0V10h5v23h-5Z' fill='%23d8ff4f'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="rail" aria-label="Dashboard identity">
+        <a class="brand" href="#top" aria-label="Ledgerline home">
+          <span class="brand-mark" aria-hidden="true">LL</span>
+          <span>
+            <strong>Ledgerline</strong>
+            <small>Personal finance console</small>
+          </span>
+        </a>
+        <nav class="rail-nav" aria-label="Primary sections">
+          <a href="#summary" aria-current="page">Summary</a>
+          <a href="#transactions">Transactions</a>
+          <a href="#insight">Insight</a>
+        </nav>
+        <div class="rail-note">
+          <span>Local-first</span>
+          <strong>No account or backend required.</strong>
+        </div>
+      </aside>
+
+      <main id="top" class="workspace">
+        <section class="hero-band" aria-labelledby="dashboard-title">
+          <div>
+            <p class="kicker">Take-home submission</p>
+            <h1 id="dashboard-title">A calmer command center for everyday money.</h1>
+          </div>
+          <div class="hero-actions" aria-label="Dataset controls">
+            <button class="ghost-button" data-action="load-demo" type="button">Demo data</button>
+            <button class="danger-button" data-action="reset-data" type="button">Reset</button>
+          </div>
+        </section>
+
+        <section id="summary" class="summary-grid" aria-label="Financial summary">
+          <article class="metric-card income">
+            <span>Total income</span>
+            <strong data-summary="income">$0</strong>
+          </article>
+          <article class="metric-card expense">
+            <span>Total expense</span>
+            <strong data-summary="expense">$0</strong>
+          </article>
+          <article class="metric-card balance">
+            <span>Net balance</span>
+            <strong data-summary="balance">$0</strong>
+          </article>
+          <article class="metric-card focus">
+            <span>Top spending category</span>
+            <strong data-summary="top-category">-</strong>
+          </article>
+        </section>
+
+        <section class="content-grid">
+          <section class="panel transaction-panel" aria-labelledby="transaction-form-title">
+            <div class="panel-heading">
+              <div>
+                <p class="kicker">Logbook</p>
+                <h2 id="transaction-form-title">Add transaction</h2>
+              </div>
+            </div>
+
+            <form id="transaction-form" class="transaction-form" novalidate>
+              <div class="field-group split">
+                <label>
+                  Amount
+                  <input id="amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required />
+                </label>
+                <label>
+                  Type
+                  <select id="type" name="type" required>
+                    <option value="expense">Expense</option>
+                    <option value="income">Income</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="field-group split">
+                <label>
+                  Category
+                  <select id="category" name="category" required></select>
+                </label>
+                <label>
+                  Date
+                  <input id="date" name="date" type="date" required />
+                </label>
+              </div>
+
+              <label class="field-group">
+                Note
+                <input id="note" name="note" type="text" maxlength="90" placeholder="Optional context" />
+              </label>
+
+              <p class="form-error" data-form-error role="alert"></p>
+              <button class="primary-button" type="submit">Add transaction</button>
+            </form>
+          </section>
+
+          <section class="panel chart-panel" aria-labelledby="chart-title">
+            <div class="panel-heading">
+              <div>
+                <p class="kicker">Category map</p>
+                <h2 id="chart-title">Spending mix</h2>
+              </div>
+              <span class="chart-total" data-chart-total>$0</span>
+            </div>
+            <div class="chart-wrap" data-chart aria-live="polite"></div>
+          </section>
+        </section>
+
+        <section id="insight" class="insight-strip" aria-live="polite">
+          <div>
+            <p class="kicker">Rule-based signal</p>
+            <h2 data-insight-title>Insight pending</h2>
+          </div>
+          <p data-insight-copy>Add a few transactions to surface a spending observation.</p>
+        </section>
+
+        <section id="transactions" class="panel ledger-panel" aria-labelledby="ledger-title">
+          <div class="panel-heading ledger-heading">
+            <div>
+              <p class="kicker">Audit trail</p>
+              <h2 id="ledger-title">Transactions</h2>
+            </div>
+            <div class="filters" aria-label="Transaction filters">
+              <label>
+                Category
+                <select id="filter-category" name="filter-category"></select>
+              </label>
+              <label>
+                From
+                <input id="filter-from" name="filter-from" type="date" />
+              </label>
+              <label>
+                To
+                <input id="filter-to" name="filter-to" type="date" />
+              </label>
+              <button class="ghost-button compact" data-action="clear-filters" type="button">Clear</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Note</th>
+                  <th scope="col">Type</th>
+                  <th scope="col" class="amount-column">Amount</th>
+                  <th scope="col" class="action-column">Action</th>
+                </tr>
+              </thead>
+              <tbody data-ledger-body></tbody>
+            </table>
+          </div>
+          <p class="empty-state" data-empty-state hidden>No transactions match the current filters.</p>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
