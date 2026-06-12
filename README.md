@@ -26,6 +26,85 @@ The visual direction uses a dark navigation rail, warm paper background, sharp b
 
 The project is a small static SPA using plain HTML, CSS, and ES modules.
 
+### System Design
+
+At a high level, Ledgerline is split into four simple parts: browser UI, app controller, domain logic, and local persistence. The browser is the only runtime, so there is no network dependency in the current version.
+
+```mermaid
+flowchart LR
+    User["User"]
+    UI["Dashboard UI<br/>forms, filters, cards, chart, ledger"]
+    Controller["App Controller<br/>src/main.js"]
+    Domain["Finance Domain<br/>validation, summaries, filters, insights"]
+    Storage["Storage Adapter<br/>localStorage wrapper"]
+    BrowserStore[("Browser localStorage")]
+
+    User -->|"adds transaction / changes filters"| UI
+    UI -->|"DOM events"| Controller
+    Controller -->|"validate and calculate"| Domain
+    Controller -->|"load / save transactions"| Storage
+    Storage --> BrowserStore
+    Domain -->|"summary, chart data, insight"| Controller
+    Controller -->|"render state"| UI
+```
+
+The important decision here is that the UI does not calculate finance values directly. It asks the domain layer for derived values, then renders the result. That keeps the business rules easier to test and prevents the dashboard from becoming a set of disconnected DOM updates.
+
+### Data Flow
+
+The app follows a small unidirectional flow. User actions update state, state is persisted when needed, and the screen is re-rendered from the latest state.
+
+```mermaid
+flowchart TD
+    Start["Page loads"]
+    Load["Load transactions<br/>from localStorage"]
+    Fallback["Use seed data<br/>if nothing valid exists"]
+    State["In-memory state<br/>transactions + filters"]
+    Render["Render dashboard<br/>summary, chart, insight, ledger"]
+    Action["User action<br/>add, delete, filter, reset"]
+    Validate["Validate input<br/>create transaction"]
+    Persist["Persist transaction state"]
+
+    Start --> Load
+    Load -->|"valid saved data"| State
+    Load -->|"missing or malformed data"| Fallback
+    Fallback --> State
+    State --> Render
+    Render --> Action
+    Action -->|"add transaction"| Validate
+    Validate --> State
+    Action -->|"delete / reset"| State
+    Action -->|"filter only"| State
+    State -->|"transaction list changed"| Persist
+    State -->|"filters changed"| Render
+    Persist --> Render
+```
+
+Filtering is intentionally kept client-side because the dataset is small and local. If this were backed by an API later, the same flow could still work, but the storage adapter would become a repository that talks to the server.
+
+### Transaction Lifecycle
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Form as Add Transaction Form
+    participant Main as main.js
+    participant Finance as finance.js
+    participant Storage as storage.js
+    participant UI as render.js
+
+    User->>Form: enters amount, category, type, date, note
+    Form->>Main: submit event
+    Main->>Finance: createTransaction(formData)
+    Finance-->>Main: validated transaction
+    Main->>Storage: saveTransactions(updatedList)
+    Storage-->>Main: saved
+    Main->>UI: renderAll(transactions, filters)
+    UI-->>User: updated cards, chart, insight, ledger
+```
+
+This keeps the add-transaction path explicit. Validation happens before persistence, persistence happens before the next render, and the UI always reflects the current transaction list.
+
 ```text
 .
 |-- index.html
