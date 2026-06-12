@@ -18,15 +18,15 @@ export const EXPENSE_CATEGORIES = CATEGORIES.filter(
   (category) => !["Salary", "Freelance", "Investments"].includes(category)
 );
 
-const currencyFormatter = new Intl.NumberFormat("en-US", {
+const currencyFormatter = new Intl.NumberFormat("en-IN", {
   style: "currency",
-  currency: "USD",
+  currency: "INR",
   maximumFractionDigits: 0
 });
 
-const preciseCurrencyFormatter = new Intl.NumberFormat("en-US", {
+const preciseCurrencyFormatter = new Intl.NumberFormat("en-IN", {
   style: "currency",
-  currency: "USD",
+  currency: "INR",
   minimumFractionDigits: 2,
   maximumFractionDigits: 2
 });
